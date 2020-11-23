@@ -27,7 +27,9 @@ namespace WebStore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<WebStoreDB>(opt => 
-                opt.UseSqlServer(_Configuration.GetConnectionString("DefaultConnection")));
+                opt.UseSqlServer(_Configuration.GetConnectionString("DefaultConnection"), 
+                    optionBuilder =>
+                        optionBuilder.MigrationsAssembly("WebStore.DAL")));
             services.AddTransient<WebStoreDBInitializer>();
 
             services.AddIdentity<User, Role>(opt => {  })
@@ -66,11 +68,12 @@ namespace WebStore
                 opt.SlidingExpiration = true;
             });
 
-            services.AddControllersWithViews(opt =>
-            {
-                //opt.Filters.Add<Filter>();
-                //opt.Conventions.Add(); // Добавление/изменение соглашений MVC-приложения
-            }).AddRazorRuntimeCompilation(); // NuGet:Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
+            services.AddControllersWithViews();
+            //    (opt =>
+            //{
+            //    //opt.Filters.Add<Filter>();
+            //    //opt.Conventions.Add(); // Добавление/изменение соглашений MVC-приложения
+            //}).AddRazorRuntimeCompilation(); // NuGet:Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
 
             //services.AddScoped<IEmployeesData, InMemoryEmployeesData>();
             services.AddScoped<IEmployeesData, SqlEmployeesData>();
