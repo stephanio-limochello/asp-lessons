@@ -348,3 +348,4 @@ UI/WebStore/wwwroot/js/site.min.js.gz
 UI/WebStore/wwwroot/js/site.min.js
 UI/WebStore/wwwroot/js/site.js
 ./../[L]lib/*
+**/[L]lib/**
