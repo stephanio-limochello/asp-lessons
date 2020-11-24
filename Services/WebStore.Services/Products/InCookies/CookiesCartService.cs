@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using WebStore.Domain;
 using WebStore.Domain.Entities;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.Infrastructure.Mapping;
-using WebStore.ViewModels;
+using WebStore.Domain.ViewModels;
+using WebStore.Services.Interfaces;
+using WebStore.Services.Products.Mapping;
 
-namespace WebStore.Infrastructure.Services.InCookies
+namespace WebStore.Services.Products.InCookies
 {
-    public class CookiesCartService : ICartService
+	public class CookiesCartService : ICartService
     {
         private readonly IProductData _ProductData;
         private readonly IHttpContextAccessor _HttpContextAccessor;

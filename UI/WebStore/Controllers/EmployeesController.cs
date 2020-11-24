@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebStore.Domain.Entities;
 using WebStore.Domain.Entities.Identity;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.Infrastructure.Mapping;
-using WebStore.ViewModels;
+using WebStore.Domain.ViewModels;
+using WebStore.Services.Interfaces;
+using WebStore.Services.Products.Mapping;
 
 namespace WebStore.Controllers
 {
-    //[Route("Users")]
-    [Authorize]
+	//[Route("Users")]
+	[Authorize]
     public class EmployeesController : Controller
     {
         private readonly IEmployeesData _EmployeesData;

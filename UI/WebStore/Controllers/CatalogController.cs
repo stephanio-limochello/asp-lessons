@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using WebStore.Domain;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.Infrastructure.Mapping;
-using WebStore.ViewModels;
+using WebStore.Domain.ViewModels;
+using WebStore.Services.Interfaces;
+using WebStore.Services.Products.Mapping;
 
 namespace WebStore.Controllers
 {
-    public class CatalogController : Controller
+	public class CatalogController : Controller
     {
         private readonly IProductData _ProductData;
 
@@ -27,7 +27,7 @@ namespace WebStore.Controllers
             {
                 SectionId = SectionId,
                 BrandId = BrandId,
-                Products = products.ToView().OrderBy(p => p.Order)
+                Products = (System.Collections.Generic.IEnumerable<ProductViewModel>)products.ToView().OrderBy(p => p.Order)
             });
         }
 

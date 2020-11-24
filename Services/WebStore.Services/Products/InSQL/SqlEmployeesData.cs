@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using WebStore.DAL.Context;
 using WebStore.Domain.Entities;
-using WebStore.Infrastructure.Interfaces;
+using WebStore.Services.Interfaces;
 
-namespace WebStore.Infrastructure.Services.InSQL
+namespace WebStore.Services.Products.InSQL
 {
-    public class SqlEmployeesData : IEmployeesData
+	public class SqlEmployeesData : IEmployeesData
     {
         private readonly WebStoreDB _db;
 

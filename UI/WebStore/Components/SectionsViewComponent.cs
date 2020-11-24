@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.ViewModels;
+using WebStore.Domain.ViewModels;
+using WebStore.Services.Interfaces;
 
 namespace WebStore.Components
 {
-    //[ViewComponent(Name = "Section")]
-    public class SectionsViewComponent : ViewComponent
+	//[ViewComponent(Name = "Section")]
+	public class SectionsViewComponent : ViewComponent
     {
         private readonly IProductData _ProductData;
 

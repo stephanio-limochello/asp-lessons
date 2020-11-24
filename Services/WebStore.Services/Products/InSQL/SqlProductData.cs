@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using WebStore.DAL.Context;
 using WebStore.Domain;
 using WebStore.Domain.Entities;
-using WebStore.Infrastructure.Interfaces;
+using WebStore.Services.Interfaces;
 
-namespace WebStore.Infrastructure.Services.InSQL
+namespace WebStore.Services.Products.InSQL
 {
-    public class SqlProductData : IProductData
+	public class SqlProductData : IProductData
     {
         private readonly WebStoreDB _db;
 

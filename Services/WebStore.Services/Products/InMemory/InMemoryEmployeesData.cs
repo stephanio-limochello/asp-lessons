@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using WebStore.Data;
 using WebStore.Domain.Entities;
-using WebStore.Infrastructure.Interfaces;
+using WebStore.Services.Data;
+using WebStore.Services.Interfaces;
 
-namespace WebStore.Infrastructure.Services.InMemory
+namespace WebStore.Services.Products.InMemory
 {
-    public class InMemoryEmployeesData : IEmployeesData
+	public class InMemoryEmployeesData : IEmployeesData
     {
         private readonly List<Employee> _Employees = TestData.Employees;
 

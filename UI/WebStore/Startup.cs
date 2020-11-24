@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -9,16 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebStore.Clients.Values;
 using WebStore.DAL.Context;
-using WebStore.Data;
 using WebStore.Domain.Entities.Identity;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.Infrastructure.Services.InCookies;
-using WebStore.Infrastructure.Services.InSQL;
+using WebStore.Interfaces.TestApi;
+using WebStore.Services.Data;
+using WebStore.Services.Interfaces;
+using WebStore.Services.Products.InCookies;
+using WebStore.Services.Products.InSQL;
 
 namespace WebStore
 {
-    public class Startup
+	public class Startup
     {
         private readonly IConfiguration _Configuration;
 
@@ -69,11 +70,6 @@ namespace WebStore
             });
 
             services.AddControllersWithViews();
-            //    (opt =>
-            //{
-            //    //opt.Filters.Add<Filter>();
-            //    //opt.Conventions.Add(); // Добавление/изменение соглашений MVC-приложения
-            //}).AddRazorRuntimeCompilation(); // NuGet:Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
 
             //services.AddScoped<IEmployeesData, InMemoryEmployeesData>();
             services.AddScoped<IEmployeesData, SqlEmployeesData>();
@@ -81,7 +77,7 @@ namespace WebStore
             services.AddScoped<IProductData, SqlProductData>();
             services.AddScoped<ICartService, CookiesCartService>();
             services.AddScoped<IOrderService, SqlOrderService>();
-
+            services.AddTransient<IValueService, ValuesClient>();
             //services.AddTransient<TInterface, TService>();
             //services.AddScoped<TInterface, TService>();
             //services.AddSingleton<TInterface, TService>();
@@ -94,7 +90,6 @@ namespace WebStore
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink(); //NuGet: Microsoft.VisualStudio.Web.BrowserLink
             }
 
             app.UseStaticFiles();
@@ -107,15 +102,6 @@ namespace WebStore
 
             app.UseWelcomePage("/welcome");
 
-            //app.Use(async (context, next) =>
-            //{
-            //    //Действия над context до следующего элемента в конвейере
-            //    await next(); // Вызов следующего промежуточного ПО в конвейере
-            //    // Действия над context после следующего элемента в конвейере
-            //});
-
-            //app.UseMiddleware<TestMiddleware>();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGet("/greetings", async context =>
@@ -125,7 +111,7 @@ namespace WebStore
 
                 endpoints.MapControllerRoute(
                     name: "areas",
-                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}" // http://localhost:5000/admin/home/index
+                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}" // /admin/home/index
                 );
 
                 endpoints.MapControllerRoute(

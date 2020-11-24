@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using WebStore.Data;
 using WebStore.Domain;
 using WebStore.Domain.Entities;
-using WebStore.Infrastructure.Interfaces;
+using WebStore.Services.Data;
+using WebStore.Services.Interfaces;
 
-namespace WebStore.Infrastructure.Services.InMemory
+namespace WebStore.Services.Products.InMemory
 {
-    public class InMemoryProductData : IProductData
+	public class InMemoryProductData : IProductData
     {
         public IEnumerable<Section> GetSections() => TestData.Sections;
 

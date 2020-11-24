@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.ViewModels;
+using WebStore.Domain.ViewModels;
+using WebStore.Services.Interfaces;
 
 namespace WebStore.Controllers
 {
-    public class CartController : Controller
+	public class CartController : Controller
     {
         private readonly ICartService _CartService;
 

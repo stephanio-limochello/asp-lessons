@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.ViewModels;
+using WebStore.Domain.ViewModels;
+using WebStore.Services.Interfaces;
 
 namespace WebStore.Components
 {
-    public class BrandsViewComponent : ViewComponent
+	public class BrandsViewComponent : ViewComponent
     {
         private readonly IProductData _ProductData;
 

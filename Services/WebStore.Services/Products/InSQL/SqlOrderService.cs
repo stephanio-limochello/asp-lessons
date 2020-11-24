@@ -7,13 +7,12 @@ using Microsoft.EntityFrameworkCore;
 using WebStore.DAL.Context;
 using WebStore.Domain.Entities.Identity;
 using WebStore.Domain.Entities.Orders;
-using WebStore.Infrastructure.Interfaces;
-using WebStore.ViewModels;
+using WebStore.Domain.ViewModels;
 
-namespace WebStore.Infrastructure.Services.InSQL
+namespace WebStore.Services.Products.InSQL
 {
-    public class SqlOrderService : IOrderService
-    {
+	public class SqlOrderService : Interfaces.IOrderService
+	{
         private readonly WebStoreDB _db;
         private readonly UserManager<User> _UserManager;
 
@@ -37,9 +36,7 @@ namespace WebStore.Infrastructure.Services.InSQL
         {
             var user = await _UserManager.FindByNameAsync(UserName);
             if(user is null) throw new InvalidOperationException($"Пользователь {UserName} на найден");
-
             await using var transaction = await _db.Database.BeginTransactionAsync();
-
             var order = new Order
             {
                 Name = OrderModel.Name,
@@ -57,7 +54,7 @@ namespace WebStore.Infrastructure.Services.InSQL
                 var order_item = new OrderItem
                 {
                     Order = order,
-                    Price = product.Price, // здесь может быть применена скидка
+                    Price = product.Price,
                     Quantity = quantity,
                     Product = product
                 };
@@ -65,10 +62,8 @@ namespace WebStore.Infrastructure.Services.InSQL
             }
 
             await _db.Orders.AddAsync(order);
-            //await _db.OrderItems.AddRangeAsync(order.Items); // излишняя операция - элементы заказа и так попадут в БД
             await _db.SaveChangesAsync();
             await transaction.CommitAsync();
-
             return order;
         }
     }
