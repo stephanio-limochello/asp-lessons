@@ -16,7 +16,6 @@ namespace WebStore.Controllers
 			_logger = logger;
 		}
 
-        /*[HttpGet*//*("{id?}")*//*]*/
         public IActionResult Index()
         {
 			try
@@ -32,23 +31,12 @@ namespace WebStore.Controllers
         }
 
 
-        /*[HttpGet, Route("{id}")]  //"{id?}"*/
-        public IActionResult GetById(int/*?*/ id)
+        public IActionResult GetById(int id)
         {
             try
             {
                 var value = _valueService.Get(id);
                 return Content(value);
-                /*if (id is null)
-                {
-                    var values = _valueService.Get();
-                    return View(values);
-                }
-                else
-                {
-                    var value = _valueService.Get(id);
-                    return Content(value);
-                }*/
             }
             catch (Exception ex)
             {
@@ -57,8 +45,11 @@ namespace WebStore.Controllers
             }
         }
 
-        /*[HttpPost]*/
-        public IActionResult Post(string value)
+        [HttpGet]
+        public IActionResult Create() => View();
+
+        [HttpPost]
+        public IActionResult Create(string value)
         {
             try
             {
@@ -79,7 +70,10 @@ namespace WebStore.Controllers
             }
         }
 
-        /*[HttpPut]*/
+        [HttpGet]
+        public IActionResult Update() => View();
+
+        [HttpPost]
         public IActionResult Update(int id, string value)
         {
             try
@@ -102,7 +96,7 @@ namespace WebStore.Controllers
             }
         }
 
-        /*[HttpDelete]*/
+        [HttpPost]
         public IActionResult Delete(int id)
         {
             try
@@ -111,7 +105,8 @@ namespace WebStore.Controllers
                 {
                     var statusCode = _valueService.Delete(id);
                     Response.StatusCode = (int)statusCode;
-                    return Content($"{id} delete");
+                    return RedirectToAction("index");
+                    //return Content($"{id} delete");
                 }
                 else
                 {

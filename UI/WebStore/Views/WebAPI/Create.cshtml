@@ -1,0 +1,25 @@
+﻿@model TestWebAPIModelView
+@{
+    ViewData["Title"] = "Тест WebAPI Create";
+}
+
+<div class="container">
+    <h3>Тест WebAPI Create</h3>
+    <hr />
+
+    <form method="post">
+        <div class="form-group row">
+            <label asp-for="Id" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <input asp-for="Id" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="Value" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <input asp-for="Value" class="form-control">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>

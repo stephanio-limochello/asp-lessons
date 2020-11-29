@@ -72,15 +72,12 @@ namespace WebStore
             services.AddControllersWithViews();
 
             //services.AddScoped<IEmployeesData, InMemoryEmployeesData>();
-            services.AddScoped<IEmployeesData, SqlEmployeesData>();
-            //services.AddScoped<IProductData, InMemoryProductData>();
+            //services.AddScoped<IEmployeesData, SqlEmployeesData>();
+            services.AddScoped<IEmployeesData, EmployeesClient>();
             services.AddScoped<IProductData, SqlProductData>();
             services.AddScoped<ICartService, CookiesCartService>();
             services.AddScoped<IOrderService, SqlOrderService>();
             services.AddTransient<IValueService, ValuesClient>();
-            //services.AddTransient<TInterface, TService>();
-            //services.AddScoped<TInterface, TService>();
-            //services.AddSingleton<TInterface, TService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, WebStoreDBInitializer db)

@@ -12,6 +12,7 @@
             <tr>
                 <th>#</th>
                 <th>Value</th>
+                <th>del</th>
             </tr>
         </thead>
         <tbody>
@@ -21,8 +22,18 @@
                 <tr>
                     <td>@(i++)</td>
                     <td>@value</td>
+                    <td>
+                        <form asp-action="Delete" method="post">
+                            <input type="hidden" name="Id" value="@i" />
+
+                            <button type="submit" class="btn btn-primary">Delete</button>
+
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
+    <a asp-action="Update" class="btn btn-primary">Update</a>
+    <a asp-action="Create" class="btn btn-primary">Create</a>
 </div>

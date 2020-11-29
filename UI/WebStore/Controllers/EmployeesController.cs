@@ -32,7 +32,7 @@ namespace WebStore.Controllers
 
         #region Edit
 
-        [Authorize(Roles = Role.Administrator)]
+        //[Authorize(Roles = Role.Administrator)]
         public IActionResult Edit(int? id)
         {
             if (id is null) return View(new EmployeesViewModel());
@@ -48,7 +48,7 @@ namespace WebStore.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = Role.Administrator)]
+        //[Authorize(Roles = Role.Administrator)]
         public IActionResult Edit(EmployeesViewModel Model)
         {
             if (Model is null)
@@ -77,7 +77,7 @@ namespace WebStore.Controllers
 
         #region Delete
 
-        [Authorize(Roles = Role.Administrator)]
+        //[Authorize(Roles = Role.Administrator)]
         public IActionResult Delete(int id)
         {
             if (id <= 0)
@@ -91,7 +91,7 @@ namespace WebStore.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = Role.Administrator)]
+        //[Authorize(Roles = Role.Administrator)]
         public IActionResult DeleteConfirmed(int id)
         {
             _EmployeesData.Delete(id);
