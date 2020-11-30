@@ -4,6 +4,7 @@ using WebStore.Domain;
 using WebStore.Domain.ViewModels;
 using WebStore.Services.Interfaces;
 using WebStore.Services.Products.Mapping;
+using WebStore.Services.Mapping;
 
 namespace WebStore.Controllers
 {
@@ -27,7 +28,7 @@ namespace WebStore.Controllers
             {
                 SectionId = SectionId,
                 BrandId = BrandId,
-                Products = (System.Collections.Generic.IEnumerable<ProductViewModel>)products.ToView().OrderBy(p => p.Order)
+                Products = products.FromDTO().ToView().OrderBy(p => p.Order)
             });
         }
 
@@ -38,7 +39,7 @@ namespace WebStore.Controllers
             if (product is null)
                 return NotFound();
 
-            return View(product.ToView());
+            return View(product.FromDTO().ToView());
         }
     }
 }

@@ -5,6 +5,7 @@ using WebStore.Domain;
 using WebStore.Domain.Entities;
 using WebStore.Domain.ViewModels;
 using WebStore.Services.Interfaces;
+using WebStore.Services.Mapping;
 using WebStore.Services.Products.Mapping;
 
 namespace WebStore.Services.Products.InCookies
@@ -13,7 +14,7 @@ namespace WebStore.Services.Products.InCookies
     {
         private readonly IProductData _ProductData;
         private readonly IHttpContextAccessor _HttpContextAccessor;
-        private readonly string _CartName;
+        private readonly string _cartName;
 
         private Cart Cart
         {
@@ -21,11 +22,11 @@ namespace WebStore.Services.Products.InCookies
             {
                 var context = _HttpContextAccessor.HttpContext;
                 var cookies = context.Response.Cookies;
-                var cart_cookies = context.Request.Cookies[_CartName];
+                var cart_cookies = context.Request.Cookies[_cartName];
                 if (cart_cookies is null)
                 {
                     var cart = new Cart();
-                    cookies.Append(_CartName, JsonConvert.SerializeObject(cart));
+                    cookies.Append(_cartName, JsonConvert.SerializeObject(cart));
                     return cart;
                 }
 
@@ -37,8 +38,8 @@ namespace WebStore.Services.Products.InCookies
 
         private void ReplaceCookies(IResponseCookies cookies, string cookie)
         {
-            cookies.Delete(_CartName);
-            cookies.Append(_CartName, cookie);
+            cookies.Delete(_cartName);
+            cookies.Append(_cartName, cookie);
         }
 
         public CookiesCartService(IProductData ProductData, IHttpContextAccessor HttpContextAccessor)
@@ -47,8 +48,8 @@ namespace WebStore.Services.Products.InCookies
             _HttpContextAccessor = HttpContextAccessor;
 
             var user = HttpContextAccessor.HttpContext.User;
-            var user_name = user.Identity.IsAuthenticated ? $"[{user.Identity.Name}]" : null;
-            _CartName = $"WebStore.Cart{user_name}";
+            var user_name = user.Identity.IsAuthenticated ? $"{user.Identity.Name}" : null;
+            _cartName = $"WebStore.Cart-{user_name}";
         }
 
         public void AddToCart(int id)
@@ -106,7 +107,7 @@ namespace WebStore.Services.Products.InCookies
                 Ids = Cart.Items.Select(item => item.ProductId).ToArray()
             });
 
-            var products_view_models = products.ToView().ToDictionary(p => p.Id);
+            var products_view_models = products.FromDTO().ToView().ToDictionary(p => p.Id);
 
             return new CartViewModel
             {

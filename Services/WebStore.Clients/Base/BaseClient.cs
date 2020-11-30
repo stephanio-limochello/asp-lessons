@@ -8,13 +8,13 @@ namespace WebStore.Clients.Base
 {
     public abstract class BaseClient : IDisposable
     {
-        protected readonly string _ServiceAddress;
-        protected readonly HttpClient _Client;
+        protected readonly string _serviceAddress;
+        protected readonly HttpClient _client;
 
-        protected BaseClient(IConfiguration Configuration, string ServiceAddress)
+        protected BaseClient(IConfiguration Configuration, string serviceAddress)
         {
-            _ServiceAddress = ServiceAddress;
-            _Client = new HttpClient
+            _serviceAddress = serviceAddress;
+            _client = new HttpClient
             {
                 BaseAddress = new Uri(Configuration["WebApiURL"]),
                 DefaultRequestHeaders =
@@ -25,37 +25,34 @@ namespace WebStore.Clients.Base
         }
 
         public T Get<T>(string url) => GetAsync<T>(url).Result;
-
         public async Task<T> GetAsync<T>(string url)
         {
-            var response = await _Client.GetAsync(url);
+            var response = await _client.GetAsync(url);
             return await response.EnsureSuccessStatusCode().Content.ReadAsAsync<T>();
         }
 
         public HttpResponseMessage Post<T>(string url, T item) => PostAsync(url, item).Result;
-
         public async Task<HttpResponseMessage> PostAsync<T>(string url, T item)
         {
-            var response = await _Client.PostAsJsonAsync(url, item);
+            var response = await _client.PostAsJsonAsync(url, item);
             return response.EnsureSuccessStatusCode();
         }
 
         public HttpResponseMessage Put<T>(string url, T item) => PutAsync(url, item).Result;
         public async Task<HttpResponseMessage> PutAsync<T>(string url, T item)
         {
-            var response = await _Client.PutAsJsonAsync(url, item);
+            var response = await _client.PutAsJsonAsync(url, item);
             return response.EnsureSuccessStatusCode();
         }
 
         public HttpResponseMessage Delete(string url) => DeleteAsync(url).Result;
         public async Task<HttpResponseMessage> DeleteAsync(string url)
         {
-            var response = await _Client.DeleteAsync(url);
+            var response = await _client.DeleteAsync(url);
             return response;
         }
 
         public void Dispose() => Dispose(true);
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing) return;

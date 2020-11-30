@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
 using WebStore.Clients.Base;
@@ -16,7 +17,7 @@ namespace WebStore.Clients.Values
 
         public IEnumerable<string> Get()
         {
-            var respone = _Client.GetAsync(_ServiceAddress).Result;
+            var respone = _client.GetAsync(_serviceAddress).Result;
             if (respone.IsSuccessStatusCode)
                 return respone.Content.ReadAsAsync<IEnumerable<string>>().Result;
 
@@ -25,7 +26,7 @@ namespace WebStore.Clients.Values
 
         public string Get(int id)
         {
-            var respone = _Client.GetAsync($"{_ServiceAddress}/{id}").Result;
+            var respone = _client.GetAsync($"{_serviceAddress}/{id}").Result;
             if (respone.IsSuccessStatusCode)
                 return respone.Content.ReadAsAsync<string>().Result;
 
@@ -34,19 +35,27 @@ namespace WebStore.Clients.Values
 
         public Uri Post(string value)
         {
-            var response = _Client.PostAsJsonAsync(_ServiceAddress, value).Result;
+            var response = _client.PostAsJsonAsync(_serviceAddress, value).Result;
+            return response.EnsureSuccessStatusCode().Headers.Location;
+        }
+        public async Task<Uri> PostAsync(string value)
+        {
+            var response = await _client.PostAsJsonAsync(_serviceAddress, value);
+            var ens = response.EnsureSuccessStatusCode();
+            var hedrs = ens.Headers;
+            var loc = hedrs.Location;
             return response.EnsureSuccessStatusCode().Headers.Location;
         }
 
         public HttpStatusCode Update(int id, string value)
         {
-            var response = _Client.PutAsJsonAsync($"{_ServiceAddress}/{id}", value).Result;
+            var response = _client.PutAsJsonAsync($"{_serviceAddress}/{id}", value).Result;
             return response.EnsureSuccessStatusCode().StatusCode;
         }
 
         public HttpStatusCode Delete(int id)
         {
-            var response = _Client.DeleteAsync($"{_ServiceAddress}/{id}").Result;
+            var response = _client.DeleteAsync($"{_serviceAddress}/{id}").Result;
             return response.StatusCode;
         }
     }
