@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using WebStore.Interfaces.TestApi;
+using System.Threading.Tasks;
 
 namespace WebStore.Controllers
 {
@@ -49,13 +50,15 @@ namespace WebStore.Controllers
         public IActionResult Create() => View();
 
         [HttpPost]
-        public IActionResult Create(string value)
+        public async Task<IActionResult> CreateAsync(string value)
         {
             try
             {
                 if (!(value is null))
                 {
-                    var url = _valueService.Post(value);
+                    //var url = _valueService.Post(value);
+                    var url = await _valueService.PostAsync(value);
+                    if (url == null) return RedirectToAction("index"); 
                     return Content(url.ToString());
                 }
                 else

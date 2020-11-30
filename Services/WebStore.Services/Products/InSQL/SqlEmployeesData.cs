@@ -21,17 +21,13 @@ namespace WebStore.Services.Products.InSQL
             if(employee is null) throw new ArgumentNullException(nameof(employee));
 
             _db.Add(employee);
-            //_db.Employees.Add(employee);
-
             return employee.Id;
         }
 
         public void Edit(Employee employee)
         {
             if(employee is null) throw new ArgumentNullException(nameof(employee));
-
             _db.Update(employee);
-            //_db.Employees.Update(employee);
         }
 
         public bool Delete(int id)
@@ -40,7 +36,6 @@ namespace WebStore.Services.Products.InSQL
             if (employee is null)
                 return false;
             _db.Remove(employee);
-            //_db.Employees.Remove(employee);
             return true;
         }
 

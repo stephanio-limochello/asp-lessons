@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace WebStore.Interfaces.TestApi
 {
@@ -11,6 +12,7 @@ namespace WebStore.Interfaces.TestApi
         string Get(int id);
 
         Uri Post(string value);
+        Task<Uri> PostAsync(string value);
 
         HttpStatusCode Update(int id, string value);
 

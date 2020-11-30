@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
 using WebStore.Clients.Base;
@@ -35,6 +36,14 @@ namespace WebStore.Clients.Values
         public Uri Post(string value)
         {
             var response = _client.PostAsJsonAsync(_serviceAddress, value).Result;
+            return response.EnsureSuccessStatusCode().Headers.Location;
+        }
+        public async Task<Uri> PostAsync(string value)
+        {
+            var response = await _client.PostAsJsonAsync(_serviceAddress, value);
+            var ens = response.EnsureSuccessStatusCode();
+            var hedrs = ens.Headers;
+            var loc = hedrs.Location;
             return response.EnsureSuccessStatusCode().Headers.Location;
         }
 

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebStore.Clients.Orders;
+using WebStore.Clients.Products;
 using WebStore.Clients.Values;
 using WebStore.DAL.Context;
 using WebStore.Domain.Entities.Identity;
@@ -27,6 +29,7 @@ namespace WebStore
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllersWithViews();
             services.AddDbContext<WebStoreDB>(opt => 
                 opt.UseSqlServer(_Configuration.GetConnectionString("DefaultConnection"), 
                     optionBuilder =>
@@ -69,14 +72,12 @@ namespace WebStore
                 opt.SlidingExpiration = true;
             });
 
-            services.AddControllersWithViews();
-
             //services.AddScoped<IEmployeesData, InMemoryEmployeesData>();
             //services.AddScoped<IEmployeesData, SqlEmployeesData>();
             services.AddScoped<IEmployeesData, EmployeesClient>();
-            services.AddScoped<IProductData, SqlProductData>();
+            services.AddScoped<IProductData, ProductsClient>();
             services.AddScoped<ICartService, CookiesCartService>();
-            services.AddScoped<IOrderService, SqlOrderService>();
+            services.AddScoped<IOrderService, OrdersClient>();
             services.AddTransient<IValueService, ValuesClient>();
         }
 
@@ -108,7 +109,7 @@ namespace WebStore
 
                 endpoints.MapControllerRoute(
                     name: "areas",
-                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}" // /admin/home/index
+                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
                 );
 
                 endpoints.MapControllerRoute(
