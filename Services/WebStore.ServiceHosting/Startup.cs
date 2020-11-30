@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WebStore.DAL.Context;
@@ -41,7 +42,21 @@ namespace WebStore.ServiceHosting
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebStore.ServiceHosting", Version = "v1" });
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebStore.WebAPI", Version = "v1" });
+
+				const string webstore_api_xml = "WebStore.ServiceHosting.xml";
+				const string webstore_domain_xml = "WebStore.Domain.xml";
+				string debug_path = Directory.GetCurrentDirectory();
+#if DEBUG
+				debug_path = "bin/Debug/net5.0";
+#else
+				//if (debug_path.Contains("WebStore.ServiceHosting")) debug_path = Path.Combine(Directory.GetCurrentDirectory(), "..", "..");
+#endif
+				c.IncludeXmlComments(webstore_api_xml);
+				if (File.Exists(webstore_domain_xml))
+					c.IncludeXmlComments(webstore_domain_xml);
+				else if (File.Exists(Path.Combine(debug_path, webstore_domain_xml)))
+					c.IncludeXmlComments(Path.Combine(debug_path, webstore_domain_xml));
 			});
 			services.AddIdentity<User, Role>(opt => { })
 			.AddEntityFrameworkStores<WebStoreDB>()
@@ -72,8 +87,9 @@ namespace WebStore.ServiceHosting
 			services.AddScoped<IEmployeesData, SqlEmployeesData>();
 		}
 
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, WebStoreDBInitializer db)
 		{
+			db.Initialize();
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

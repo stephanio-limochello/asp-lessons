@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebStore.Clients.Identity;
 using WebStore.Clients.Orders;
 using WebStore.Clients.Products;
 using WebStore.Clients.Values;
@@ -30,15 +31,22 @@ namespace WebStore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddDbContext<WebStoreDB>(opt => 
-                opt.UseSqlServer(_Configuration.GetConnectionString("DefaultConnection"), 
-                    optionBuilder =>
-                        optionBuilder.MigrationsAssembly("WebStore.DAL")));
-            services.AddTransient<WebStoreDBInitializer>();
 
-            services.AddIdentity<User, Role>(opt => {  })
-               .AddEntityFrameworkStores<WebStoreDB>()
+            services.AddIdentity<User, Role>()
                .AddDefaultTokenProviders();
+
+            services
+               .AddTransient<IUserStore<User>, UsersClient>()
+               .AddTransient<IUserRoleStore<User>, UsersClient>()
+               .AddTransient<IUserPasswordStore<User>, UsersClient>()
+               .AddTransient<IUserEmailStore<User>, UsersClient>()
+               .AddTransient<IUserPhoneNumberStore<User>, UsersClient>()
+               .AddTransient<IUserTwoFactorStore<User>, UsersClient>()
+               .AddTransient<IUserClaimStore<User>, UsersClient>()
+               .AddTransient<IUserLoginStore<User>, UsersClient>();
+
+            services
+               .AddTransient<IRoleStore<Role>, RolesClient>();
 
             services.Configure<IdentityOptions>(opt =>
             {
@@ -81,10 +89,8 @@ namespace WebStore
             services.AddTransient<IValueService, ValuesClient>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, WebStoreDBInitializer db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-           db.Initialize();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

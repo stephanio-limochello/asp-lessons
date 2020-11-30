@@ -20,12 +20,20 @@ namespace WebStore.ServiceHosting.Controllers
 			this.logger = logger;
 		}
 
+        /// <summary>Getting a list of all employees</summary>
+        /// <returns>List of all employees</returns>
         [HttpGet]
         public IEnumerable<Employee> Get() => _employeesData.Get();
 
+        /// <summary>Getting an employee by his ID</summary>
+        /// <param name="id">ID of the employee of interest</param>
+        /// <returns>Employee with the specified ID</returns>
         [HttpGet("{id}")]
         public Employee GetById(int id) => _employeesData.GetById(id);
 
+        /// <summary>Add new employee</summary>
+        /// <param name="employee">New employee</param>
+        /// <returns>The ID assigned to the employee</returns>
         [HttpPost]
         public int Add([FromBody] Employee employee)
         {
@@ -34,6 +42,9 @@ namespace WebStore.ServiceHosting.Controllers
             return id;
         }
 
+
+        /// <summary>Editing an employee</summary>
+        /// <param name="employee">Editable employee</param>
         [HttpPut]
         public void Edit(Employee employee)
         {
@@ -41,6 +52,9 @@ namespace WebStore.ServiceHosting.Controllers
             SaveChanges();
         }
 
+        /// <summary>Removing an employee by identifier</summary>
+        /// <param name="id">Identifier for the deletion of the employee</param>
+        /// <returns>True if the employee was deleted</returns>
         [HttpDelete("{id}")]
         public bool Delete(int id)
         {
@@ -49,6 +63,7 @@ namespace WebStore.ServiceHosting.Controllers
             return result;
         }
 
+        /// <summary>Save Changes</summary>
         [NonAction]
         public void SaveChanges() => _employeesData.SaveChanges();
     }
