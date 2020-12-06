@@ -103,10 +103,9 @@ namespace WebStore.ServiceHosting
 
 			app.UseEndpoints(endpoints =>
 			{
-				//endpoints.MapControllers();
 				endpoints.MapControllerRoute(
 					name: "default",
-					pattern: "{controller=Home}/{action=Index}/{id?}"
+					pattern: "{controller=swagger}/{action=Index}/{id?}"
 				);
 			});
 		}
