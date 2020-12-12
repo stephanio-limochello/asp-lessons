@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Json;
 
 namespace WebStore
 {
@@ -20,32 +22,27 @@ namespace WebStore
             .AddCommandLine(args)
             .Build();
 			CreateHostBuilder(args).Build().Run();
-			//CreateHostBuilder(args).Build().RunAsync();
 		}
 
         public static IHostBuilder CreateHostBuilder(string[] args)
 		{
-			Log.Logger = new LoggerConfiguration()
-				.MinimumLevel.Information()
-				.Enrich.FromLogContext()
-				.WriteTo.Console()
-				.WriteTo.Debug()
-				.WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs/WebStoreLog.txt"), rollingInterval: RollingInterval.Day, outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-				.CreateLogger();
 			return
 			Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
 			{
 				webBuilder.UseStartup<Startup>()
 				.UseKestrel()
 				.UseUrls(_builtConfig["hosturl"])
-				//.UseHttpSys(opt => opt.MaxAccepts = 5)
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.UseWebRoot(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
-				.ConfigureLogging((hostingContext, logging) =>
-				 {
-					 logging.ClearProviders();
-					 logging.AddSerilog();
-				 });
+				.UseSerilog((host, log) => log.ReadFrom.Configuration(host.Configuration)
+						   .MinimumLevel.Debug()
+						   .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+						   .Enrich.FromLogContext()
+						   .WriteTo.Console(
+								outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}]{SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}")
+						   .WriteTo.RollingFile($@".\Log\WebStore[{DateTime.Now:yyyy-MM-ddTHH-mm-ss}].log.txt")
+						   .WriteTo.File(new JsonFormatter(",", true), $@".\Log\WebStore[{DateTime.Now:yyyy-MM-ddTHH-mm-ss}].log.json")
+						   .WriteTo.Seq("http://localhost:5341/"));
 			});
 		}
     }

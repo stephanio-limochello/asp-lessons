@@ -42,7 +42,8 @@ namespace WebStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(ex);
+                throw new Exception(ex.Message, ex);
+                //return BadRequest(ex);
             }
         }
 
@@ -69,7 +70,8 @@ namespace WebStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(ex);
+                throw new Exception(ex.Message, ex);
+                //return BadRequest(ex);
             }
         }
 
@@ -95,7 +97,8 @@ namespace WebStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(ex);
+                throw new Exception(ex.Message, ex);
+                //return BadRequest(ex);
             }
         }
 
@@ -119,7 +122,8 @@ namespace WebStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(ex);
+                throw new Exception(ex.Message, ex);
+                //return BadRequest(ex);
             }
         }
     }

@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WebStore.Domain.Entities.Identity;
 using WebStore.Domain.ViewModels.Identity;
 
@@ -8,76 +10,95 @@ namespace WebStore.Controllers
 {
 	public class AccountController : Controller
     {
-        private readonly UserManager<User> _UserManager;
-        private readonly SignInManager<User> _SignInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+		private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<User> UserManager, SignInManager<User> SignInManager)
+		public AccountController(UserManager<User> UserManager, SignInManager<User> SignInManager, ILogger<AccountController> logger)
         {
-            _UserManager = UserManager;
-            _SignInManager = SignInManager;
-        }
+            _userManager = UserManager;
+            _signInManager = SignInManager;
+			_logger = logger;
+		}
 
-        // Процесс регистрации нового пользвоателя
-
+        // Registration new user
         public IActionResult Register() => View(new RegisterUserViewModel());
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterUserViewModel Model/*, [FromServices] IMapper Mapper*/)
         {
             if (!ModelState.IsValid) return View(Model);
-
-            //var new_user = Mapper.Map<User>(Model);
-
-            var user = new User
+            using (_logger.BeginScope("Registration New User {0}", Model.UserName)) 
             {
-                UserName = Model.UserName
-            };
+                var user = new User
+                {
+                    UserName = Model.UserName
+                };
 
-            var registration_result = await _UserManager.CreateAsync(user, Model.Password);
-            if (registration_result.Succeeded)
-            {
-                await _UserManager.AddToRoleAsync(user, Role.User);
+                var registration_result = await _userManager.CreateAsync(user, Model.Password);
+                if (registration_result.Succeeded)
+                {
+                    _logger.LogInformation("User {0} registered successfully", Model.UserName);
 
-                await _SignInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Home");
+                    await _userManager.AddToRoleAsync(user, Role.User);
+                    _logger.LogInformation("User {0} has been assigned a role {1}", Model.UserName, Role.User);
+
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    _logger.LogInformation("User {0} is automatically logged in for the first time", Model.UserName);
+
+                    return RedirectToAction("Index", "Home");
+                }
+
+                foreach (var error in registration_result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                _logger.LogWarning("Error while registering a new user {0} {1}",
+                    Model.UserName,
+                    string.Join(",", registration_result.Errors.Select(error => error.Description)));
+
             }
-
-            foreach (var error in registration_result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
 
             return View(Model);
         }
 
-        //Процесс входа пользователя в систему
+        //  User login process
         public IActionResult Login(string ReturnUrl) => View(new LoginViewModel { ReturnUrl = ReturnUrl });
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel Model)
+        public async Task<IActionResult> Login(LoginViewModel Model)    
         {
             if (!ModelState.IsValid) return View(Model);
-
-            var login_result = await _SignInManager.PasswordSignInAsync(
-                Model.UserName,
-                Model.Password,
-                Model.RememberMe,
-                lockoutOnFailure: false);
-
-            if (login_result.Succeeded)
+            using (_logger.BeginScope("User {0} login", Model.UserName))
             {
-                if (Url.IsLocalUrl(Model.ReturnUrl))
-                    return Redirect(Model.ReturnUrl);
-                return RedirectToAction("Index", "Home");
+                var login_result = await _signInManager.PasswordSignInAsync(
+                     Model.UserName,
+                     Model.Password,
+                     Model.RememberMe,
+                     lockoutOnFailure: false);
+                if (login_result.Succeeded)
+                {
+                    _logger.LogInformation("User successfully logged in");
+                    if (Url.IsLocalUrl(Model.ReturnUrl))
+                    {
+                        _logger.LogInformation("Redirecting the signed in user {0} to the address {1}",
+                            Model.UserName, Model.ReturnUrl);
+                        return Redirect(Model.ReturnUrl);
+                    }
+                    _logger.LogInformation("Redirecting the signed in user {0} to the home page", Model.UserName);
+                    return RedirectToAction("Index", "Home");
+                }
+                _logger.LogWarning("Password entered error when user {0} logs on", Model.UserName);
+                ModelState.AddModelError(string.Empty, "The username or password you entered is incorrect");
             }
-
-            ModelState.AddModelError(string.Empty, "Неверное имя пользователя или пароль!");
-
             return View(Model);
         } 
 
 
         public async Task<IActionResult> Logout()
         {
-            await _SignInManager.SignOutAsync();
+            var user_name = User.Identity!.Name;
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("User {0} is logout", user_name);
             return RedirectToAction("Index", "Home");
         }
 

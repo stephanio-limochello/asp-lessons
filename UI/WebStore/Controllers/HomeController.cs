@@ -8,7 +8,7 @@ namespace WebStore.Controllers
         public IActionResult Index() => View();
 
         public IActionResult Throw(string id) => 
-            throw new ApplicationException($"Исключение: {id ?? "<null>"}");
+            throw new ApplicationException($"Exception: {id ?? "<null>"}");
 
         public IActionResult Blogs() => View();
 
@@ -19,5 +19,11 @@ namespace WebStore.Controllers
         public IActionResult ContactUs() => View();
 
         public IActionResult Error404() => View();
+
+        public IActionResult ErrorStatus(string Code) => Code switch
+        {
+            "404" => RedirectToAction(nameof(Error404)),
+            _ => Content($"Error {Code}")
+        };
     }
 }

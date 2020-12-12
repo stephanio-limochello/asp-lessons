@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WebStore.DAL.Context;
 using WebStore.Domain.Entities.Identity;
 
@@ -13,34 +15,51 @@ namespace WebStore.Services.Data
         private readonly WebStoreDB _db;
         private readonly UserManager<User> _UserManager;
         private readonly RoleManager<Role> _RoleManager;
+		private readonly ILogger<WebStoreDBInitializer> _Logger;
 
-        public WebStoreDBInitializer(WebStoreDB db, UserManager<User> UserManager, RoleManager<Role> RoleManager)
+		public WebStoreDBInitializer(WebStoreDB db, UserManager<User> userManager, RoleManager<Role> roleManager, ILogger<WebStoreDBInitializer> logger)
         {
             _db = db;
-            _UserManager = UserManager;
-            _RoleManager = RoleManager;
-        }
+            _UserManager = userManager;
+            _RoleManager = roleManager;
+			_Logger = logger;
+		}
 
         public void Initialize()
         {
+            var timer = Stopwatch.StartNew();
+            _Logger.LogInformation("Database initialization...");
+
+
             var db = _db.Database;
-
-            //if(db.EnsureDeleted())
-            //    if(!db.EnsureCreated())
-            //        throw new InvalidOperationException("Ошибка при создании БД");
-
-            db.Migrate();
+            if (db.GetPendingMigrations().Any())
+            {
+                _Logger.LogInformation("Database migration...");
+                db.Migrate();
+                _Logger.LogInformation("Database migration completed successfully {0}ms", timer.ElapsedMilliseconds);
+            }
+            else
+                _Logger.LogInformation("No database migration required");
 
             InitializeProducts();
+            _Logger.LogInformation("Products are initialized {0} ms", timer.ElapsedMilliseconds);
             InitializeEmployees();
             InitializeIdentityAsync().Wait();
+            _Logger.LogInformation("Identity initialization finished {0:0.###}s", timer.Elapsed.TotalSeconds);
+            _Logger.LogInformation("Database initialization completed successfully {0:0.###}s", timer.Elapsed.TotalSeconds);
         }
 
         private void InitializeProducts()
         {
-            if (_db.Products.Any()) return;
-
+            var timer = Stopwatch.StartNew();
+            _Logger.LogInformation("Product catalog initialization...");
+            if (_db.Products.Any())
+            {
+                _Logger.LogInformation("Product catalog initialization is not required");
+                return;
+            }
             var db = _db.Database;
+
             using (db.BeginTransaction())
             {
                 _db.Sections.AddRange(TestData.Sections);
@@ -51,6 +70,7 @@ namespace WebStore.Services.Data
 
                 db.CommitTransaction();
             }
+            _Logger.LogInformation("Categories are initialized {0} ms", timer.ElapsedMilliseconds);
 
             using (db.BeginTransaction())
             {
@@ -62,6 +82,7 @@ namespace WebStore.Services.Data
 
                 db.CommitTransaction();
             }
+            _Logger.LogInformation("Brands are initialized {0}ms", timer.ElapsedMilliseconds);
 
             using (db.BeginTransaction())
             {
@@ -73,104 +94,58 @@ namespace WebStore.Services.Data
 
                 db.CommitTransaction();
             }
-
-            //var products = TestData.Products;
-            //var sections = TestData.Sections;
-            //var brands = TestData.Brands;
-
-            //var product_section = products.Join(
-            //    sections, 
-            //    p => p.SectionId, 
-            //    s => s.Id, 
-            //    (product, section) => (product, section));
-
-            //foreach (var (product, section) in product_section)
-            //{
-            //    product.Section = section;
-            //    product.SectionId = 0;
-            //}
-
-            //var product_brand = products.Join(
-            //    brands,
-            //    p => p.BrandId,
-            //    b => b.Id,
-            //    (product, brand) => (product, brand));
-
-            //foreach (var (product, brand) in product_brand)
-            //{
-            //    product.Brand = brand;
-            //    product.BrandId = null;
-            //}
-
-            //foreach (var product in products)
-            //    product.Id = 0;
-
-            //var child_sections = sections.Join(
-            //    sections,
-            //    child => child.ParentId,
-            //    parent => parent.Id,
-            //    (child, parent) => (child, parent));
-
-            //foreach (var (child, parent) in child_sections)
-            //{
-            //    child.ParentSection = parent;
-            //    child.ParentId = null;
-            //}
-
-            //foreach (var section in sections)
-            //    section.Id = 0;
-
-            //foreach (var brand in brands)
-            //    brand.Id = 0;
-
-
-            //using (db.BeginTransaction())
-            //{
-            //    _db.Sections.AddRange(sections);
-            //    _db.Brands.AddRange(brands);
-            //    _db.Products.AddRange(products);
-            //    _db.SaveChanges();
-            //    db.CommitTransaction();
-            //}
+            _Logger.LogInformation("Items have been initialized {0}ms", timer.ElapsedMilliseconds);
         }
 
         private void InitializeEmployees()
         {
             if (_db.Employees.Any()) return;
-
             using (_db.Database.BeginTransaction())
             {
                 TestData.Employees.ForEach(employee => employee.Id = 0);
-
                 _db.Employees.AddRange(TestData.Employees);
-
                 _db.SaveChanges();
-
                 _db.Database.CommitTransaction();
             }
         }
 
         private async Task InitializeIdentityAsync()
         {
+            _Logger.LogInformation("Identity initialization...");
+            var timer = Stopwatch.StartNew();
             async Task CheckRoleExist(string RoleName)
             {
                 if (!await _RoleManager.RoleExistsAsync(RoleName))
+                {
+                    _Logger.LogInformation("Adding role {0} {1}ms", RoleName, timer.ElapsedMilliseconds);
                     await _RoleManager.CreateAsync(new Role { Name = RoleName });
+                }
             }
-
             await CheckRoleExist(Role.Administrator);
             await CheckRoleExist(Role.User);
-
             if (await _UserManager.FindByNameAsync(User.Administrator) is null)
             {
+                _Logger.LogInformation("Adding administrator...");
                 var admin = new User { UserName = User.Administrator };
                 var creation_result = await _UserManager.CreateAsync(admin, User.DefaultAdminPassword);
                 if (creation_result.Succeeded)
-                    await _UserManager.AddToRoleAsync(admin, Role.Administrator);
+                {
+                    _Logger.LogInformation("Administrator added successfully");
+                    var role_arr_result = await _UserManager.AddToRoleAsync(admin, Role.Administrator);
+                    if (role_arr_result.Succeeded)
+                        _Logger.LogInformation("Administrator role was added to the administrator successfully");
+                    else
+                    {
+                        var error = string.Join(",", role_arr_result.Errors.Select(e => e.Description));
+                        _Logger.LogError("Error adding the Administrator role to the administrator {0}", error);
+                        throw new InvalidOperationException($"Error adding the Administrator role to the administrator: {error}");
+                    }
+                }
                 else
                 {
-                    var errors = creation_result.Errors.Select(e => e.Description);
-                    throw new InvalidOperationException($"Ошибка при создании пользователя Администратор: {string.Join(", ", errors)}");
+                    var errors = string.Join(", ", creation_result.Errors.Select(e => e.Description));
+                    _Logger.LogError("Error creating user Administrator {0}", errors);
+                    throw new InvalidOperationException($"Error creating user Administrator: {string.Join(", ", errors)}");
                 }
             }
         }

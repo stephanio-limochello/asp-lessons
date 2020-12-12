@@ -9,26 +9,30 @@ namespace WebStore.Domain.ViewModels
         [HiddenInput(DisplayValue = false)]
         public int Id { get; set; }
 
-        [Display(Name = "Имя")]
-        [Required(ErrorMessage = "Имя является обязательным")]
+        [Display(Name = "Name")]
+        [Required(ErrorMessage = "Name is required")]
         [StringLength(200, MinimumLength = 3, ErrorMessage = "Длина строи имени должна быть от 3 до 200 символов")]
-        [RegularExpression(@"([А-ЯЁ][а-яё]+)|([A-Z][a-z]+)", ErrorMessage = "Ошибка формата имени. Либо русские буквы, либо латиница. Никаких цифр!")]
+        //[RegularExpression(@"([А-ЯЁ][а-яё]+)|([A-Z][a-z]+)", ErrorMessage = "Ошибка формата имени. Либо русские буквы, либо латиница.")]
         public string FirstName { get; set; }
 
-        [Display(Name = "Фамилия")]
-        [Required(ErrorMessage = "Фамилия является обязательным")]
+        [Display(Name = "Last Name")]
+        [Required(ErrorMessage = "Last Name is required")]
         [StringLength(200, MinimumLength = 3, ErrorMessage = "Длина строи фамилии должна быть от 3 до 200 символов")]
         public string LastName { get; set; }
 
-        [Display(Name = "Отчество")]
+        [Display(Name = "Patronymic")]
         public string Patronymic { get; set; }
 
-        [Display(Name = "Возраст")]
-        [Required(ErrorMessage = "Возраст является обязательным")]
-        [Range(20, 80, ErrorMessage = "Возраст должен быть в пределах от 20 до 80 лет")]
+        [Display(Name = "Age")]
+        [Required(ErrorMessage = "Age is required")]
+        [Range(20, 80, ErrorMessage = "Age должен быть в пределах от 20 до 80 лет")]
         public int Age { get; set; }
 
-        [Display(Name = "Дата начала трудового договора")]
+
+        /// <summary>
+        /// Employment Date
+        /// </summary>
+        [Display(Name = "Employment Date")]
         [DataType(DataType.DateTime)]
         public DateTime EmployementDate { get; set; }
     }
