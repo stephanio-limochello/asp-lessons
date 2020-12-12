@@ -13,18 +13,18 @@ namespace WebStore.Services.Products
 {
     public class CartService : ICartService
     {
-        private readonly IProductData _ProductData;
-        private readonly ICartStore _CartStore;
+        private readonly IProductData _productData;
+        private readonly ICartStore _cartStore;
 
-        public CartService(IProductData ProductData, ICartStore CartStore)
+        public CartService(IProductData productData, ICartStore cartStore)
         {
-            _ProductData = ProductData;
-            _CartStore = CartStore;
+            _productData = productData;
+            _cartStore = cartStore;
         }
 
         public void AddToCart(int id)
         {
-            var cart = _CartStore.Cart;
+            var cart = _cartStore.Cart;
             var item = cart.Items.FirstOrDefault(i => i.ProductId == id);
 
             if (item is null)
@@ -32,12 +32,12 @@ namespace WebStore.Services.Products
             else
                 item.Quantity++;
 
-            _CartStore.Cart = cart;
+            _cartStore.Cart = cart;
         }
 
         public void DecrementFromCart(int id)
         {
-            var cart = _CartStore.Cart;
+            var cart = _cartStore.Cart;
             var item = cart.Items.FirstOrDefault(i => i.ProductId == id);
             if (item is null) return;
 
@@ -47,41 +47,41 @@ namespace WebStore.Services.Products
             if (item.Quantity == 0)
                 cart.Items.Remove(item);
 
-            _CartStore.Cart = cart;
+            _cartStore.Cart = cart;
         }
 
         public void RemoveFromCart(int id)
         {
-            var cart = _CartStore.Cart;
+            var cart = _cartStore.Cart;
             var item = cart.Items.FirstOrDefault(i => i.ProductId == id);
             if (item is null) return;
 
             cart.Items.Remove(item);
 
-            _CartStore.Cart = cart;
+            _cartStore.Cart = cart;
         }
 
         public void Clear()
         {
-            var cart = _CartStore.Cart;
+            var cart = _cartStore.Cart;
 
             cart.Items.Clear();
 
-            _CartStore.Cart = cart;
+            _cartStore.Cart = cart;
         }
 
         public CartViewModel TransformFromCart()
         {
-            var products = _ProductData.GetProducts(new ProductFilter
+            var products = _productData.GetProducts(new ProductFilter
             {
-                Ids = _CartStore.Cart.Items.Select(item => item.ProductId).ToArray()
+                Ids = _cartStore.Cart.Items.Select(item => item.ProductId).ToArray()
             });
 
             var products_view_models = products.FromDTO().ToView().ToDictionary(p => p.Id);
 
             return new CartViewModel
             {
-                Items = _CartStore.Cart.Items.Select(item => (products_view_models[item.ProductId], item.Quantity))
+                Items = _cartStore.Cart.Items.Select(item => (products_view_models[item.ProductId], item.Quantity))
             };
         }
     }
