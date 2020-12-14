@@ -13,7 +13,7 @@ namespace WebStore.ServiceHosting.Controllers
 {
 	[Route(WebAPI.Products)]
 	[ApiController]
-	public class ProductsApiController : ControllerBase
+	public class ProductsApiController : ControllerBase, IProductData
     {
         private readonly IProductData _productData;
 		private readonly ILogger<ProductsApiController> _logger;
@@ -36,5 +36,11 @@ namespace WebStore.ServiceHosting.Controllers
 
         [HttpGet("{id}")]
         public ProductDTO GetProductById(int id) => _productData.GetProductById(id);
+
+        [HttpGet("sections/{id}")]
+        public SectionDTO GetSectionById(int id) => _productData.GetSectionById(id);
+
+        [HttpGet("brands/{id}")]
+        public BrandDTO GetBrandById(int id) => _productData.GetBrandById(id);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using WebStore.Domain.DTO.Products;
 using WebStore.Domain.Entities;
@@ -15,6 +16,7 @@ namespace WebStore.Services.Mapping
                 Id = Brand.Id,
                 Name = Brand.Name,
                 Order = Brand.Order,
+                ProductsCount = Brand.Products.Count()
             };
         }
 
