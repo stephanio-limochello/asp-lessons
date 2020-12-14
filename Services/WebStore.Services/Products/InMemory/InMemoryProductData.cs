@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using WebStore.Domain;
 using WebStore.Domain.DTO.Products;
@@ -9,7 +10,8 @@ using WebStore.Services.Mapping;
 
 namespace WebStore.Services.Products.InMemory
 {
-	public class InMemoryProductData : IProductData
+    [Obsolete]
+    public class InMemoryProductData : IProductData
     {
         public IEnumerable<SectionDTO> GetSections() => TestData.Sections.AsEnumerable().Select(x => x.ToDTO());
 
@@ -32,5 +34,15 @@ namespace WebStore.Services.Products.InMemory
 		{
             return TestData.Products.FirstOrDefault(p => p.Id == id).ToDTO();
         }
-    }
+
+		public SectionDTO GetSectionById(int id)
+		{
+			return TestData.Sections.FirstOrDefault(s => s.Id == id).ToDTO();
+        }
+
+		public BrandDTO GetBrandById(int id)
+		{
+			return TestData.Brands.FirstOrDefault(b => b.Id == id).ToDTO();
+		}
+	}
 }
